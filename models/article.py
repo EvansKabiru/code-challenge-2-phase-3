@@ -1,21 +1,35 @@
 from database.connection import get_db_connection
 
 class Article:
-    def __init__(self, id, author_id, magazine_id, title):
+    def __init__(self, id, title, content, author_id, magazine_id):
         self._id = id
-        self._author_id = author_id
-        self._magazine_id = magazine_id
-        self._title = title
+        self._content = content  # Use a private variable for content
+        self.author_id = author_id
+        self.magazine_id = magazine_id
+        
+        # Set title only if it's not already set
+        if not hasattr(self, '_title'):  
+            self._title = title  # Set title during instantiation
 
     @property
     def id(self):
         return self._id
+    
+    @id.setter
+    def id(self, value):
+        self._id = value
 
     @property
     def title(self):
-        if hasattr(self, "_title"):
-            return self._title
-        return None
+        return self._title  # Getter only, no setter to make it immutable
+
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, value):
+        self._content = value
 
     @property
     def author(self):
