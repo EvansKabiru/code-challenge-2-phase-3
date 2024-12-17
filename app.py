@@ -19,45 +19,54 @@ def main():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Create an author (insert into authors table)
+
+    '''
+        The following is just for testing purposes, 
+        you can modify it to meet the requirements of your implmentation.
+    '''
+
+    # Create an author
     cursor.execute('INSERT INTO authors (name) VALUES (?)', (author_name,))
-    author_id = cursor.lastrowid  # Get the id of the newly created author
+    author_id = cursor.lastrowid # Use this to fetch the id of the newly created author
 
-    # Create a magazine (insert into magazines table)
-    cursor.execute('INSERT INTO magazines (name, category) VALUES (?, ?)', (magazine_name, magazine_category))
-    magazine_id = cursor.lastrowid  # Get the id of the newly created magazine
+    # Create a magazine
+    cursor.execute('INSERT INTO magazines (name, category) VALUES (?,?)', (magazine_name, magazine_category))
+    magazine_id = cursor.lastrowid # Use this to fetch the id of the newly created magazine
 
-    # Create an article (insert into articles table)
-    cursor.execute('INSERT INTO articles (title, content, author_id, magazine_id) VALUES (?, ?, ?, ?)', 
+    # Create an article
+    cursor.execute('INSERT INTO articles (title, content, author_id, magazine_id) VALUES (?, ?, ?, ?)',
                    (article_title, article_content, author_id, magazine_id))
+
     conn.commit()
 
-    # Query the database for inserted records (JOIN articles, authors, and magazines)
-    cursor.execute('''
-        SELECT articles.id, articles.title, articles.content, authors.name AS author_name, magazines.name AS magazine_name, magazines.category AS magazine_category
-        FROM articles
-        JOIN authors ON articles.author_id = authors.id
-        JOIN magazines ON articles.magazine_id = magazines.id
-    ''')
-    articles_data = cursor.fetchall()
+    # Query the database for inserted records. 
+    # The following fetch functionality should probably be in their respective models
+
+    cursor.execute('SELECT * FROM magazines')
+    magazines = cursor.fetchall()
+
+    cursor.execute('SELECT * FROM authors')
+    authors = cursor.fetchall()
+
+    cursor.execute('SELECT * FROM articles')
+    articles = cursor.fetchall()
 
     conn.close()
 
-    # Display results using model classes
-    print("\nArticles:")
-    for article_data in articles_data:
-        # Instantiate models with data from the database query
-        author = Author(article_data["author_name"])
-        magazine = Magazine(article_data["magazine_name"], article_data["magazine_category"])
-        article = Article(article_data["id"], article_data["title"], article_data["content"], author, magazine)
+    # Display results
+    print("\nMagazines:")
+    for magazine in magazines:
+        print(Magazine(magazine["id"], magazine["name"], magazine["category"]))
 
-        # Print the article details
-        print(f"Article ID: {article.id}")
-        print(f"Title: {article.title}")
-        print(f"Content: {article.content}")
-        print(f"Author: {author.name}")
-        print(f"Magazine: {magazine.name}, Category: {magazine.category}")
-        print("-----")
+    print("\nAuthors:")
+    for author in authors:
+        print(Author(author["id"], author["name"]))
+
+    print("\nArticles:")
+    for article in articles:
+        # print(Article(article["id"], article["title"], article["content"], article["author_id"], article["magazine_id"]))
+        article = Article(article["id"], article["title"], article["content"], article["author_id"], article["magazine_id"])
+        print(f"Article ID: {article.id}, Title: {article.title}, Content: {article.content}, Author ID: {article.author_id}, Magazine ID: {article.magazine_id}")
 
 if __name__ == "__main__":
     main()
